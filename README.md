@@ -42,3 +42,5 @@ Når bruker har deaaktivert alarmen, vil den også få mulighet til å reaktiver
 
 
 ## Koblingsskjema
+![image](https://user-images.githubusercontent.com/56083423/139557003-4fa9f76b-6282-4464-88aa-69b959f81dce.png)
+
