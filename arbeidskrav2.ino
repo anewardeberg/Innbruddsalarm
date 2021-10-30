@@ -1,5 +1,4 @@
 
-#include <Adafruit_ST7735.h> // Hardware-specific library for ST7735
 #include <Adafruit_ST7789.h> // Hardware-specific library for ST7789
 #include <Keypad.h>
 #include <SPI.h>
@@ -13,7 +12,7 @@
 #define WHITE 0xFFFF
 #define RED 0xF800
 
-#if defined(ARDUINO_FEATHER_ESP32) // Feather Huzzah32
+#if defined(ARDUINO_FEATHER_ESP32) 
 #define TFT_CS         14
 #define TFT_RST        15
 #define TFT_DC         32
@@ -24,24 +23,18 @@
 #define TFT_DC         5
 
 #else
-// For the breakout board, you can use any 2 or 3 pins.
-// These pins will also work for the 1.8" TFT shield.
 #define TFT_CS        10
-#define TFT_RST        9 // Or set to -1 and connect to Arduino RESET pin
+#define TFT_RST        9 
 #define TFT_DC         8
 #endif
 
-#include <Wire.h> // must be included here so that Arduino library object file references work
+#include <Wire.h> 
 #include <RtcDS3231.h>
 RtcDS3231<TwoWire> Rtc(Wire);
 Adafruit_ST7789 tft = Adafruit_ST7789(TFT_CS, TFT_DC, TFT_RST);
 
 
-#define Solenoid 11             //Actually the Gate of the transistor that controls the solenoid
-#define O_Button 10             //Push Button
-
-#define I2C_ADDR 0x27           //I2C adress, you should use the code to scan the adress first (0x27) here
-#define BACKLIGHT_PIN 3         // Declaring LCD Pins
+#define I2C_ADDR 0x27         
 #define En_pin 2
 #define Rw_pin 1
 #define Rs_pin 0
@@ -64,10 +57,10 @@ char keymap[numberOfRows][numberOfColumns] =
 char keyPressed;
 char code[] = {'0', '0', '0', '0'};
 
-char checkCode1[sizeof(code)];  //Where the new key is stored
-char checkCode2[sizeof(code)];  //Where the new key is stored again so it's compared to the previous one
+char checkCode1[sizeof(code)];  
+char checkCode2[sizeof(code)]; 
 
-short a = 0, i = 0, s = 0, j = 0; //Variables used later
+short a = 0, i = 0, s = 0, j = 0;
 
 byte rowPins[numberOfRows] = {2, 3, 4, 5};
 byte columnPins[numberOfColumns] = {6, 7, 9};
