@@ -148,21 +148,9 @@ void loop()
   while (movementDetected) {
     if (millis() - lastTime > delayInSeconds * 1000) {
       lastTime = millis();
-      tft.fillScreen(BLACK);
-      tft.setCursor(0, 0);
-      tft.setTextSize(4);
-      tft.println("SSAS");
-      tft.setTextSize(1, 2);
-      tft.println("Super Safe Alarm System");
-      tft.print("i promise...");
-      tft.setTextSize(2);
-      tft.setTextSize(2);
-      tft.setCursor(0, 110);
-      RtcDateTime now = Rtc.GetDateTime();
-      printDateTime(now);
+      ShowHomeScreen();
     }
-
-    //Kjør kode frem til ett sekund har gått
+    
     if (millis() - lastTime2 < delayInSeconds * 1000) {
       lastTime2 = millis();
       tft.setCursor(60, 200);
@@ -401,7 +389,7 @@ void alarmEffects() {
 
 void ShowHomeScreen() {
   tft.setCursor(0, 0);
-  tft.fillScreen(ST77XX_BLACK);
+  tft.fillScreen(BLACK);
   tft.setTextSize(4);
   tft.println("SSAS");
   tft.setTextSize(1, 2);
