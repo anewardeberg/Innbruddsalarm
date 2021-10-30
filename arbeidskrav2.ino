@@ -134,15 +134,36 @@ void loop()
   if (IRstatus == HIGH) {
     movementDetected = true;
     Serial.print("Movement detected");
-    tft.fillScreen(ST77XX_BLACK);
-    tft.setCursor(0, 0);
-    tft.print("Enter code:");
-    GetCode();
-    if (a == sizeof(code)) {
-      OpenDoor();
-      alarmIsActivated = false;
-      ShowHomeScreen();
-    }
+    do {
+      tft.fillScreen(ST77XX_BLACK);
+      tft.setCursor(0, 0);
+      tft.print("Enter code:");
+      GetCode();
+      if (a == sizeof(code)) {
+        amountOfTries = 0;
+        OpenDoor();
+        alarmIsActivated = false;
+        ShowHomeScreen();
+      } else {
+        amountOfTries++;
+        if (amountOfTries < 3 && alarmIsActivated) {
+          AccessDenied();
+          tft.setCursor(15, 60);
+          tft.print(3 - amountOfTries);
+          if (3 - amountOfTries == 1) {
+            tft.print(" try remaining");
+          } else {
+            tft.print(" tries remaining");
+          }
+          delay(2000);
+        } else if (amountOfTries == 3) {
+          alarmEffects();
+        }
+        tft.setCursor(0, 0);
+        tft.fillScreen(BLACK);
+        tft.print("Enter code:");
+      }
+    } while (alarmIsActivated);
   }
 
   while (movementDetected) {
@@ -150,78 +171,68 @@ void loop()
       lastTime = millis();
       ShowHomeScreen();
     }
-    
-    if (millis() - lastTime2 < delayInSeconds * 1000) {
-      lastTime2 = millis();
-      tft.setCursor(60, 200);
-      RtcDateTime now = Rtc.GetDateTime();
-      printDateTime(now);
 
-
-      keyPressed = keypad.getKey();
-      if (keyPressed == '*') {
-        tft.fillScreen(ST77XX_BLACK);
-        tft.setCursor(0, 0);
-        tft.print("Enter code:");
-        GetCode();
-        if (a == sizeof(code)) {
-          amountOfTries = 0;
-          if (alarmIsActivated == false) {
-            alarmIsActivated = true;
-            movementDetected = false;
-            tft.setCursor(30, 53);
+    keyPressed = keypad.getKey();
+    if (keyPressed == '*') {
+      tft.fillScreen(BLACK);
+      tft.setCursor(0, 0);
+      tft.print("Enter code:");
+      GetCode();
+      if (a == sizeof(code)) {
+        amountOfTries = 0;
+        if (alarmIsActivated == false) {
+          alarmIsActivated = true;
+          movementDetected = false;
+          tft.setCursor(30, 53);
+          tft.fillScreen(GREEN);
+          tft.println("ALARM ACTIVATED");
+          tft.setCursor(8, 75);
+          tft.println("you have 30 seconds");
+          tft.setCursor(70, 95);
+          tft.println("to leave");
+          delay(3000);
+          for (i = 0; i < 30; i++) {
             tft.fillScreen(GREEN);
-            tft.println("ALARM ACTIVATED");
-            tft.setCursor(8, 75);
-            tft.println("you have 30 seconds");
-            tft.setCursor(70, 95);
-            tft.println("to leave");
-            delay(3000);
-            for (i = 0; i < 30; i++) {
-              tft.fillScreen(GREEN);
-              tft.setCursor(90, 50);
-              tft.setTextSize(4);
-              tft.print(30 - i);
-              tft.setTextSize(2);
-              tft.setCursor(20, 85);
-              tft.print("seconds remaining");
-              delay(1000);
-            }
-
-          } else {
-            OpenDoor();
-            alarmIsActivated = false;
+            tft.setCursor(90, 50);
+            tft.setTextSize(4);
+            tft.print(30 - i);
+            tft.setTextSize(2);
+            tft.setCursor(20, 85);
+            tft.print("seconds remaining");
+            delay(1000);
           }
 
+        } else {
+          OpenDoor();
+          alarmIsActivated = false;
         }
-        else {
-          amountOfTries++;
-          if (amountOfTries < 3 && alarmIsActivated) {
-            tft.setCursor(40, 43);
-            tft.fillScreen(RED);
-            tft.println("ACCESS DENIED");
-            tft.setCursor(15, 60);
-            tft.print(3 - amountOfTries);
-            if (3 - amountOfTries == 1) {
-              tft.print(" try remaining");
-            } else {
-              tft.print(" tries remaining");
-            }
-          } else if (amountOfTries == 3) {
-            alarmEffects();
-          }
-        }
-        delay(3000);
-        ShowHomeScreen();
-
-      } else if (keyPressed == '#' && !alarmIsActivated) {
-        ChangeCode();
-        ShowHomeScreen();
 
       }
+      else {
+        amountOfTries++;
+        if (amountOfTries < 3 && alarmIsActivated) {
+          AccessDenied();
+          tft.setCursor(15, 60);
+          tft.print(3 - amountOfTries);
+          if (3 - amountOfTries == 1) {
+            tft.print(" try remaining");
+          } else {
+            tft.print(" tries remaining");
+          }
+        } else if (amountOfTries == 3) {
+          alarmEffects();
+        }
+      }
+      delay(3000);
+      ShowHomeScreen();
 
-      keyPressed = NO_KEY;
+    } else if (keyPressed == '#' && !alarmIsActivated) {
+      ChangeCode();
+      ShowHomeScreen();
+
     }
+
+    keyPressed = NO_KEY;
 
   }
 
@@ -251,6 +262,16 @@ void GetCode() {
         a--;
     }
   }
+
+}
+
+void AccessDenied() {
+  tft.setCursor(40, 43);
+  tft.fillScreen(RED);
+  tft.println("ACCESS DENIED");
+}
+
+void AccessGranted() {
 
 }
 
@@ -389,7 +410,7 @@ void alarmEffects() {
 
 void ShowHomeScreen() {
   tft.setCursor(0, 0);
-  tft.fillScreen(BLACK);
+  tft.fillScreen(ST77XX_BLACK);
   tft.setTextSize(4);
   tft.println("SSAS");
   tft.setTextSize(1, 2);
